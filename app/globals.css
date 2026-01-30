@@ -1,5 +1,93 @@
 @import "tailwindcss";
 
+/* Light-mode overrides for embedded (hideHeader) dashboard pages.
+   Avoid Tailwind arbitrary-variant selectors here to prevent CSS nesting parse issues. */
+.embed-light {
+  color: rgb(15 23 42);
+}
+
+/* Convert the dark-mode 'glass' cards (bg-white/5 etc) to true light cards */
+.embed-light [class*='bg-white/5'],
+.embed-light [class*='bg-white/10'] {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgb(226 232 240) !important;
+}
+
+.embed-light [class*='border-white/10'] {
+  border-color: rgb(226 232 240) !important;
+}
+
+.embed-light [class*='bg-white/5'] .text-white,
+.embed-light [class*='bg-white/10'] .text-white {
+  color: rgb(15 23 42) !important;
+}
+
+.embed-light [class*='bg-white/5'] [class*='text-indigo-300'],
+.embed-light [class*='bg-white/10'] [class*='text-indigo-300'] {
+  color: rgb(71 85 105) !important;
+}
+
+.embed-light [class*='bg-white/5'] [class*='text-gray-400'],
+.embed-light [class*='bg-white/10'] [class*='text-gray-400'],
+.embed-light [class*='bg-white/5'] [class*='text-gray-300'],
+.embed-light [class*='bg-white/10'] [class*='text-gray-300'] {
+  color: rgb(71 85 105) !important;
+}
+
+.embed-light .text-gray-300 {
+  color: rgb(51 65 85) !important;
+}
+
+.embed-light .text-gray-400,
+.embed-light .text-indigo-300 {
+  color: rgb(71 85 105) !important;
+}
+
+/* Make pale status colors legible on light backgrounds */
+.embed-light [class*='text-green-300'] { color: rgb(21 128 61) !important; }
+.embed-light [class*='text-amber-300'] { color: rgb(180 83 9) !important; }
+.embed-light [class*='text-blue-300'] { color: rgb(29 78 216) !important; }
+.embed-light [class*='text-purple-300'] { color: rgb(109 40 217) !important; }
+.embed-light [class*='text-red-300'] { color: rgb(185 28 28) !important; }
+
+/* Light mode form inputs and select dropdowns */
+.embed-light input,
+.embed-light select,
+.embed-light textarea {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: rgb(203 213 225) !important;
+  color: rgb(15 23 42) !important;
+}
+
+.embed-light input::placeholder {
+  color: rgb(148 163 184) !important;
+}
+
+.embed-light input:focus,
+.embed-light select:focus,
+.embed-light textarea:focus {
+  border-color: rgb(99 102 241) !important;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1) !important;
+}
+
+.embed-light select option {
+  background-color: white !important;
+  color: rgb(15 23 42) !important;
+}
+
+/* Fix text colors in embedded cards */
+.embed-light .text-white {
+  color: rgb(15 23 42) !important;
+}
+
+.embed-light .text-gray-500 {
+  color: rgb(100 116 139) !important;
+}
+
+.embed-light .placeholder-gray-500::placeholder {
+  color: rgb(148 163 184) !important;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -12,15 +100,148 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #4f46e5, #7c3aed);
+}
+
+/* Selection styling */
+::selection {
+  background: rgba(99, 102, 241, 0.2);
+  color: #4f46e5;
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* Input placeholder styling */
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Animated gradient background */
+.animated-gradient {
+  background: linear-gradient(-45deg, #6366f1, #8b5cf6, #ec4899, #f59e0b);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Smooth page transitions */
+.page-transition {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Button press effect */
+.btn-press {
+  transition: transform 0.1s ease;
+}
+
+.btn-press:active {
+  transform: scale(0.98);
+}
+
+/* Card hover effect */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Pulse animation for loading states */
+@keyframes pulse-soft {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+/* Mobile-friendly touch targets */
+@media (max-width: 768px) {
+  button,
+  [role="button"],
+  input,
+  select,
+  textarea {
+    min-height: 44px;
+  }
+}
+
+/* Prevent text selection on buttons */
+button {
+  user-select: none;
+  -webkit-user-select: none;
 }
