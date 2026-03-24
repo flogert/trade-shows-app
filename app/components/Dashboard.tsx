@@ -18,10 +18,6 @@ import {
   Bot, 
   Inbox, 
   PlusCircle, 
-  Trash2,
-  X,
-  User,
-  MapPin,
   Sparkles,
   Clock,
   TrendingUp,
@@ -39,7 +35,7 @@ interface DashboardProps {
 }
 
 export default function Dashboard({ onBackToForm, hideHeader = false }: DashboardProps) {
-  const { allSubmissions, clearAllSubmissions } = useFormStore();
+  const { allSubmissions, footTrafficEntries, clearAllSubmissions } = useFormStore();
   const [selectedLead, setSelectedLead] = useState<CustomerData | null>(null);
   const [copied, setCopied] = useState(false);
   const [bulkAnalysis, setBulkAnalysis] = useState<string>('');
@@ -53,7 +49,7 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
       alert('No leads to export');
       return;
     }
-    exportToExcel(allSubmissions);
+    exportToExcel(allSubmissions, 'trade-show-leads', footTrafficEntries);
   };
 
   const handleEmailContent = async () => {

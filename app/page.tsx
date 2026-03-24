@@ -1,24 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import FormWizard from './components/FormWizard';
-import Dashboard from './components/Dashboard';
-import AnalyticsDashboard from './components/AnalyticsDashboard';
-import CRMIntegration from './components/CRMIntegration';
-import LeadList from './components/LeadList';
-import FootTrafficCounter from './components/FootTrafficCounter';
 import { useFormStore } from './store/formStore'; // <-- add
 import { 
   LayoutDashboard, 
   BarChart3, 
   Users, 
-  Link2, 
   Plus,
   Footprints
 } from 'lucide-react';
 
-type ViewType = 'form' | 'dashboard' | 'analytics' | 'crm' | 'leads' | 'traffic';
+const Dashboard = dynamic(() => import('./components/Dashboard'));
+const AnalyticsDashboard = dynamic(() => import('./components/AnalyticsDashboard'));
+const LeadList = dynamic(() => import('./components/LeadList'));
+const FootTrafficCounter = dynamic(() => import('./components/FootTrafficCounter'));
+
+type ViewType = 'form' | 'dashboard' | 'analytics' | 'leads' | 'traffic';
 
 export default function Home() {
   const [view, setView] = useState<ViewType>('form');
@@ -46,12 +45,6 @@ export default function Home() {
       )}
       {view === 'analytics' && (
         <AnalyticsWithNav 
-          currentView={view}
-          onViewChange={handleViewChange}
-        />
-      )}
-      {view === 'crm' && (
-        <CRMWithNav 
           currentView={view}
           onViewChange={handleViewChange}
         />
@@ -93,14 +86,7 @@ function TopNav({
             className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1 -ml-1"
             aria-label="Go to dashboard home"
           >
-            <Image 
-              src="/safagoods.png" 
-              alt="Safagoods" 
-              width={40} 
-              height={40} 
-              className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
-            />
-            <span className="font-bold text-gray-800 hidden sm:block text-sm md:text-base">Trade Show Hub</span>
+            <span className="font-bold text-gray-800 text-sm md:text-base">Trade Shows Hub</span>
           </button>
           
           <div className="flex items-center gap-1 sm:gap-2">
@@ -127,12 +113,6 @@ function TopNav({
               onClick={() => onViewChange('traffic')}
               icon={<Footprints className="w-4 h-4" />}
               label="Traffic"
-            />
-            <NavButton 
-              active={currentView === 'crm'} 
-              onClick={() => onViewChange('crm')}
-              icon={<Link2 className="w-4 h-4" />}
-              label="CRM"
             />
             <div className="w-px h-6 sm:h-8 bg-gray-200 mx-1 sm:mx-2" aria-hidden="true" />
             <button
@@ -205,22 +185,6 @@ function AnalyticsWithNav({
     <div className="min-h-dvh bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
       <TopNav currentView={currentView} onViewChange={onViewChange} />
       <AnalyticsDashboard onBack={() => onViewChange('dashboard')} hideHeader />
-    </div>
-  );
-}
-
-// CRM with Navigation
-function CRMWithNav({ 
-  currentView, 
-  onViewChange 
-}: { 
-  currentView: ViewType;
-  onViewChange: (view: ViewType) => void;
-}) {
-  return (
-    <div className="min-h-dvh bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50">
-      <TopNav currentView={currentView} onViewChange={onViewChange} />
-      <CRMIntegration onBack={() => onViewChange('dashboard')} hideHeader />
     </div>
   );
 }

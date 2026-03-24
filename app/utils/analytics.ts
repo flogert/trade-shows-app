@@ -192,7 +192,6 @@ export function generateHeatmapData(leads: CustomerData[]): HeatmapZone[] {
     }
   });
 
-  const totalLeads = leads.length || 1;
   const maxCount = Math.max(...Object.values(sectionCounts), 1);
 
   return BOOTH_SECTIONS.map(section => {

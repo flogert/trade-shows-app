@@ -96,7 +96,7 @@ export default function ContactPreferencesSlide({ direction }: ContactPreference
             Best time to contact you?
           </label>
           <div className="grid grid-cols-2 gap-2 sm:gap-3">
-            {timeOptions.map((time, index) => (
+            {timeOptions.map((time) => (
               <motion.button
                 key={time}
                 whileHover={{ scale: 1.01 }}

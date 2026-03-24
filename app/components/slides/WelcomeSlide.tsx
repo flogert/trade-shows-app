@@ -11,7 +11,6 @@ import {
   User, 
   ArrowRight
 } from 'lucide-react';
-import Image from 'next/image';
 
 interface WelcomeSlideProps {
   onStart: () => void;
@@ -49,18 +48,6 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
           <span className="hidden sm:inline">Dashboard</span>
         </motion.button>
         
-        {/* Add logo/image above the headline */}
-        <div className="flex justify-center mb-4 sm:mb-6">
-          <Image
-            src="/safagoods.png"
-            alt="Safagoods"
-            width={520}
-            height={220}
-            priority
-            className="h-auto w-48 sm:w-72 md:w-90 object-contain"
-          />
-        </div>
-
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

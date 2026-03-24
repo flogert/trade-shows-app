@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Trade Show Hub - Lead Collection App",
-    template: "%s | Trade Show Hub",
+    default: "Trade Shows Hub - Lead Collection App",
+    template: "%s | Trade Shows Hub",
   },
   description: "Professional trade show lead collection app with AI-powered insights, analytics, and CRM integration.",
   keywords: ["trade show", "lead collection", "CRM", "analytics", "sales"],
   authors: [{ name: "Flogert Bardhi" }],
   openGraph: {
-    title: "Trade Show Hub - Lead Collection App",
+    title: "Trade Shows Hub - Lead Collection App",
     description: "Professional trade show lead collection app with AI-powered insights.",
     type: "website",
     locale: "en_US",
@@ -33,10 +33,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   icons: {
-    icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icon.svg", type: "image/svg+xml" },
-    ],
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: "/apple-touch-icon.png",
   },
 };

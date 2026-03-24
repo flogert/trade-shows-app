@@ -11,7 +11,7 @@ import {
   getCRMFieldMapping,
   generateCRMStats,
 } from '../utils/crm';
-import { calculateLeadScore, enrichLeadData } from '../utils/leadScoring';
+import { calculateLeadScore } from '../utils/leadScoring';
 import {
   ArrowLeft,
   Plug,
@@ -20,10 +20,8 @@ import {
   CheckCircle,
   AlertTriangle,
   Database,
-  CloudOff,
   Users,
   Clock,
-  Zap,
   Check,
   Shield,
   CircleDot,
@@ -35,7 +33,7 @@ interface CRMIntegrationProps {
 }
 
 export default function CRMIntegration({ onBack, hideHeader = false }: CRMIntegrationProps) {
-  const { allSubmissions, updateFormData } = useFormStore();
+  const { allSubmissions } = useFormStore();
   const [crmConfig, setCrmConfig] = useState<CRMConfig>({
     platform: 'none',
     connected: false,
@@ -118,8 +116,6 @@ export default function CRMIntegration({ onBack, hideHeader = false }: CRMIntegr
     setIsEnriching(false);
     setTimeout(() => setSyncResult(null), 3000);
   };
-
-  const fieldMapping = selectedPlatform ? getCRMFieldMapping(selectedPlatform) : [];
 
   const containerClassName = hideHeader
     ? 'min-h-dvh bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50 p-3 sm:p-4 md:p-6 embed-light'

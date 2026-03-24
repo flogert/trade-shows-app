@@ -27,21 +27,11 @@ export default function FormWizard({ onViewDashboard }: FormWizardProps) {
     resetForm,
     setSubmitting,
     setAiLoading,
-    nextSlide,
     startSession,
     getSessionDuration,
   } = useFormStore();
 
   const [direction, setDirection] = useState(1);
-
-  const handleNext = () => {
-    setDirection(1);
-    nextSlide();
-  };
-
-  const handlePrev = () => {
-    setDirection(-1);
-  };
 
   const handleStart = () => {
     setDirection(1);

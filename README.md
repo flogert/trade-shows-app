@@ -1,6 +1,6 @@
-# 🎪 Trade Show Hub - Lead Collection App
+# 🎪 Trade Shows Hub - Lead Retrieval App
 
-A professional, mobile-friendly lead collection application for distribution companies attending trade shows. Built with Next.js 16, Framer Motion, and AI-powered insights.
+A professional, mobile-friendly lead retrieval application for teams attending trade shows. Built with Next.js 16, Framer Motion, and AI-powered insights.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.1.6-black?logo=next.js) 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) 
@@ -10,7 +10,7 @@ A professional, mobile-friendly lead collection application for distribution com
 
 ## 🌟 Overview
 
-Trade Show Hub is an all-in-one solution for capturing, managing, and analyzing leads at trade shows and exhibitions. It features a beautiful slide-based form wizard, real-time analytics, CRM integration, and AI-powered lead scoring.
+Trade Shows Hub is an all-in-one solution for retrieving, managing, and analyzing leads at trade shows and exhibitions. It features a slide-based form wizard, real-time analytics, CRM integration, and AI-powered lead scoring.
 
 ## ✨ Key Features
 
@@ -21,26 +21,10 @@ Trade Show Hub is an all-in-one solution for capturing, managing, and analyzing 
 - **Smart Validation** - Real-time field validation with helpful feedback
 - **Offline Support** - Local storage persistence for unreliable network conditions
 
-### 🏷️ Brands Supported
-- Beri
-- Raz  
-- Lost Mary
-- Dinner Lady
-- One Tank
-- RYL
-
-### 📦 Product Categories
-- Vapes
-- Devices
-- Vape Juice
-- Smoke Shop Items
-- Hemp Products
-- Convenience Store Items
-
 ### 🤖 AI-Powered Features
-- **Personalized Insights** - AI analyzes each lead's preferences and interests
+- **Personalized Insights** - AI analyzes each lead's context and engagement signals
 - **Lead Scoring** - Automatic A/B/C/D grading based on engagement signals
-- **Smart Recommendations** - Product and follow-up suggestions
+- **Smart Recommendations** - Follow-up suggestions
 - **Bulk Analysis** - Generate comprehensive reports on all collected leads
 
 ### 📊 Analytics Dashboard
@@ -108,15 +92,7 @@ Without the API key, the app will use built-in local insights generation.
 ```
 app/
 ├── components/
-│   ├── slides/           # Form slide components
-│   │   ├── WelcomeSlide.tsx
-│   │   ├── BusinessTypeSlide.tsx
-│   │   ├── ContactInfoSlide.tsx
-│   │   ├── BrandsSlide.tsx
-│   │   ├── CategoriesSlide.tsx
-│   │   ├── ContactPreferencesSlide.tsx
-│   │   ├── NotesSlide.tsx
-│   │   └── SuccessSlide.tsx
+│   ├── slides/           # Multi-step form screens
 │   ├── Dashboard.tsx     # Lead management dashboard
 │   ├── FormWizard.tsx    # Main form controller
 │   └── SlideWrapper.tsx  # Animation wrapper
@@ -134,32 +110,17 @@ app/
 
 ## 🎨 Customization
 
-### Adding New Brands
-Edit `app/types/index.ts`:
-```typescript
-export const BRANDS = [
-  { id: 'brand-id', name: 'Brand Name', color: '#hexcolor' },
-  // ...
-];
-```
-
-### Adding New Categories
-Edit `app/types/index.ts`:
-```typescript
-export const CATEGORIES = [
-  { id: 'category-id', name: 'Category Name', icon: '🎯', description: 'Description' },
-  // ...
-];
-```
+### Updating Form Options
+Edit `app/types/index.ts` to adjust selectable options used by the form and dashboard views.
 
 ## 📱 Usage
 
 1. **Welcome Screen** - Tap "Get Started"
 2. **Business Type** - Select Wholesale or Retail
 3. **Contact Info** - Enter customer details
-4. **Brands** - Select interested brands
-5. **Categories** - Select product categories
-6. **Contact Preferences** - Choose how to reach out
+4. **Interest Details** - Capture lead interest details
+5. **Contact Preferences** - Choose how to reach out
+6. **Timing Preferences** - Capture best follow-up timing
 7. **Notes** - Add any additional information
 8. **Success** - View summary and AI insights
 
@@ -180,7 +141,7 @@ export const CATEGORIES = [
 | **Framer Motion** | 12.x | Animations |
 | **Zustand** | 5.x | State management |
 | **Recharts** | 3.x | Data visualization |
-| **SheetJS** | 0.18 | Excel export |
+| **SheetJS / xlsx-js-style** | 0.18 / 1.x | Excel export |
 | **OpenAI** | 6.x | AI insights (optional) |
 
 ## ⚡ Performance Optimizations

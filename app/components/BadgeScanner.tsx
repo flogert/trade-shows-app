@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Camera, X, QrCode, ScanLine, Loader2 } from 'lucide-react';
 import { Html5Qrcode } from 'html5-qrcode';
+import Image from 'next/image';
 
 interface BadgeScannerProps {
   onScanComplete: (data: {
@@ -320,9 +321,12 @@ export default function BadgeScanner({ onScanComplete }: BadgeScannerProps) {
                         className="w-full aspect-4/3 rounded-xl object-cover bg-gray-900"
                       />
                     ) : (
-                      <img
+                      <Image
                         src={capturedImage}
                         alt="Captured badge"
+                        width={1280}
+                        height={960}
+                        unoptimized
                         className="w-full aspect-4/3 rounded-xl object-cover"
                       />
                     )}

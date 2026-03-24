@@ -7,7 +7,6 @@ import { CustomerData, BRANDS, BOOTH_SECTIONS, CATEGORIES, SALESPEOPLE } from '.
 import {
   calculateLeadScore,
   segmentLeads,
-  getLeadPriorityActions,
   LeadScoreBreakdown,
 } from '../utils/leadScoring';
 import { exportToExcel } from '../utils/export';
@@ -20,16 +19,9 @@ import {
   Snowflake,
   List,
   LayoutGrid,
-  User,
-  Mail,
-  Phone,
-  Building,
-  Tag,
   X,
   ChevronRight,
-  TrendingUp,
   Clock,
-  Target,
   Inbox,
 } from 'lucide-react';
 
@@ -42,7 +34,7 @@ type FilterType = 'all' | 'hot' | 'warm' | 'cold' | 'A' | 'B' | 'C' | 'D';
 type SortType = 'score' | 'name' | 'date' | 'business';
 
 export default function LeadList({ onBack, hideHeader = false }: LeadListProps) {
-  const { allSubmissions } = useFormStore();
+  const { allSubmissions, footTrafficEntries } = useFormStore();
   const [filter, setFilter] = useState<FilterType>('all');
   const [sort, setSort] = useState<SortType>('score');
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,7 +101,7 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
         engagementLevel: score.engagementLevel,
       };
     });
-    exportToExcel(leadsWithScores, 'qualified-leads');
+    exportToExcel(leadsWithScores, 'qualified-leads', footTrafficEntries);
   };
 
   const getGradeColor = (grade: string) => {

@@ -60,7 +60,7 @@ interface AnalyticsDashboardProps {
 export default function AnalyticsDashboard({ onBack, hideHeader = false }: AnalyticsDashboardProps) {
   const { allSubmissions, footTrafficEntries } = useFormStore();
   const [metrics, setMetrics] = useState(() => generateMockMetrics(allSubmissions));
-  const [hourlyData, setHourlyData] = useState(() => generateHourlyData(allSubmissions));
+  const [hourlyData] = useState(() => generateHourlyData(allSubmissions));
   const [demographics, setDemographics] = useState(() => generateDemographics(allSubmissions));
   const [heatmapData, setHeatmapData] = useState(() => generateHeatmapData(allSubmissions));
   const [selectedZone, setSelectedZone] = useState<HeatmapZone | null>(null);

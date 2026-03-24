@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 import { CustomerData, FootTrafficEntry, BRANDS, CATEGORIES, BOOTH_SECTIONS, SALESPEOPLE } from '../types';
 
 // Helper function to format dwell time
@@ -12,21 +12,63 @@ function formatDwellTime(seconds: number | undefined): string {
   return `${secs}s`;
 }
 
-export function exportToExcel(data: CustomerData[], filename: string = 'trade-show-leads') {
-  // Transform data for Excel
-  const excelData = data.map((item) => ({
-    'ID': item.id,
+const HEADER_STYLE = {
+  font: { bold: true, color: { rgb: 'FFFFFF' } },
+  fill: { fgColor: { rgb: '1F4E78' } },
+  alignment: { horizontal: 'center', vertical: 'center' },
+};
+
+function styleHeaderRow(worksheet: XLSX.WorkSheet): void {
+  if (!worksheet['!ref']) return;
+
+  const range = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let col = range.s.c; col <= range.e.c; col += 1) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+    const cell = worksheet[cellAddress] as (XLSX.CellObject & { s?: unknown }) | undefined;
+    if (cell) {
+      cell.s = HEADER_STYLE;
+    }
+  }
+}
+
+function sortLeadsForExport(leads: CustomerData[]): CustomerData[] {
+  return [...leads].sort((a, b) => {
+    const lastNameCompare = (a.lastName || '').localeCompare(b.lastName || '');
+    if (lastNameCompare !== 0) return lastNameCompare;
+
+    const firstNameCompare = (a.firstName || '').localeCompare(b.firstName || '');
+    if (firstNameCompare !== 0) return firstNameCompare;
+
+    const businessNameCompare = (a.businessName || '').localeCompare(b.businessName || '');
+    if (businessNameCompare !== 0) return businessNameCompare;
+
+    return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+  });
+}
+
+function getVisitorTotals(entries: FootTrafficEntry[]): { totalAllTime: number; totalToday: number } {
+  const today = new Date().toDateString();
+  const totalToday = entries
+    .filter((entry) => new Date(entry.timestamp).toDateString() === today)
+    .reduce((sum, entry) => sum + entry.count, 0);
+  const totalAllTime = entries.reduce((sum, entry) => sum + entry.count, 0);
+
+  return { totalAllTime, totalToday };
+}
+
+function mapLeadForExport(item: CustomerData, totalVisitorsAllTime: number): Record<string, string | number> {
+  return {
+    'First Name': item.firstName,
+    'Last Name': item.lastName,
+    'Business Name': item.businessName,
+    'Business Type': item.businessType,
+    'Email': item.email,
+    'Phone': item.phone,
+    'Salesperson': SALESPEOPLE.find((s) => s.id === item.salesperson)?.name || item.salesperson || '',
+    'Booth Section': BOOTH_SECTIONS.find((s) => s.id === item.boothSection)?.name || item.boothSection || '',
     'Date': new Date(item.timestamp).toLocaleDateString(),
     'Time': new Date(item.timestamp).toLocaleTimeString(),
     'Dwell Time': formatDwellTime(item.dwellTime),
-    'Salesperson': SALESPEOPLE.find((s) => s.id === item.salesperson)?.name || item.salesperson || '',
-    'Booth Section': BOOTH_SECTIONS.find((s) => s.id === item.boothSection)?.name || item.boothSection || '',
-    'First Name': item.firstName,
-    'Last Name': item.lastName,
-    'Email': item.email,
-    'Phone': item.phone,
-    'Business Name': item.businessName,
-    'Business Type': item.businessType,
     'Address': item.address,
     'City': item.city,
     'State': item.state,
@@ -41,9 +83,33 @@ export function exportToExcel(data: CustomerData[], filename: string = 'trade-sh
       .join(', '),
     'Preferred Contact': item.preferredContact,
     'Best Time to Contact': item.bestTimeToContact,
+    'Visitors Counted (All Time)': totalVisitorsAllTime,
     'Notes': item.notes,
     'AI Insights': item.aiInsights || '',
-  }));
+    'ID': item.id,
+  };
+}
+
+export function exportToExcel(
+  data: CustomerData[],
+  filename: string = 'trade-show-leads',
+  footTrafficEntries: FootTrafficEntry[] = []
+) {
+  const { totalAllTime, totalToday } = getVisitorTotals(footTrafficEntries);
+
+  const summaryData = [
+    { Metric: 'Report Date', Value: new Date().toLocaleDateString() },
+    { Metric: 'Leads Exported', Value: data.length },
+    { Metric: 'Visitors Counted (Today)', Value: totalToday },
+    { Metric: 'Visitors Counted (All Time)', Value: totalAllTime },
+  ];
+
+  const summarySheet = XLSX.utils.json_to_sheet(summaryData);
+  summarySheet['!cols'] = [{ wch: 30 }, { wch: 24 }];
+  styleHeaderRow(summarySheet);
+
+  // Transform and sort lead data for cleaner exports.
+  const excelData = sortLeadsForExport(data).map((item) => mapLeadForExport(item, totalAllTime));
 
   // Create workbook and worksheet
   const workbook = XLSX.utils.book_new();
@@ -51,18 +117,17 @@ export function exportToExcel(data: CustomerData[], filename: string = 'trade-sh
 
   // Set column widths
   const colWidths = [
-    { wch: 20 }, // ID
-    { wch: 12 }, // Date
-    { wch: 10 }, // Time
-    { wch: 10 }, // Dwell Time
-    { wch: 16 }, // Salesperson
-    { wch: 22 }, // Booth Section
     { wch: 15 }, // First Name
     { wch: 15 }, // Last Name
+    { wch: 25 }, // Business Name
+    { wch: 14 }, // Business Type
     { wch: 25 }, // Email
     { wch: 15 }, // Phone
-    { wch: 25 }, // Business Name
-    { wch: 12 }, // Business Type
+    { wch: 16 }, // Salesperson
+    { wch: 22 }, // Booth Section
+    { wch: 12 }, // Date
+    { wch: 12 }, // Time
+    { wch: 12 }, // Dwell Time
     { wch: 30 }, // Address
     { wch: 15 }, // City
     { wch: 15 }, // State
@@ -71,12 +136,16 @@ export function exportToExcel(data: CustomerData[], filename: string = 'trade-sh
     { wch: 50 }, // Categories
     { wch: 15 }, // Preferred Contact
     { wch: 20 }, // Best Time
+    { wch: 24 }, // Visitors Counted (All Time)
     { wch: 50 }, // Notes
     { wch: 60 }, // AI Insights
+    { wch: 22 }, // ID
   ];
   worksheet['!cols'] = colWidths;
+  styleHeaderRow(worksheet);
 
   // Add worksheet to workbook
+  XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
   XLSX.utils.book_append_sheet(workbook, worksheet, 'Leads');
 
   // Generate filename with date
@@ -175,6 +244,7 @@ export function exportFootTrafficToExcel(
 
   const summarySheet = XLSX.utils.json_to_sheet(summaryData);
   summarySheet['!cols'] = [{ wch: 30 }, { wch: 20 }];
+  styleHeaderRow(summarySheet);
   XLSX.utils.book_append_sheet(workbook, summarySheet, 'Summary');
 
   // Sheet 2: Hourly Breakdown (Today)
@@ -186,10 +256,13 @@ export function exportFootTrafficToExcel(
   
   const hourlySheet = XLSX.utils.json_to_sheet(hourlySheetData);
   hourlySheet['!cols'] = [{ wch: 12 }, { wch: 15 }, { wch: 12 }];
+  styleHeaderRow(hourlySheet);
   XLSX.utils.book_append_sheet(workbook, hourlySheet, 'Hourly Breakdown');
 
   // Sheet 3: Detailed Entries
-  const detailedData = footTrafficEntries.map((entry) => ({
+  const detailedData = [...footTrafficEntries]
+    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    .map((entry) => ({
     'ID': entry.id,
     'Date': new Date(entry.timestamp).toLocaleDateString(),
     'Time': new Date(entry.timestamp).toLocaleTimeString(),
@@ -198,7 +271,7 @@ export function exportFootTrafficToExcel(
       ? BOOTH_SECTIONS.find((s) => s.id === entry.boothSection)?.name || entry.boothSection
       : 'All Areas',
     'Notes': entry.notes || '',
-  }));
+    }));
 
   const detailedSheet = XLSX.utils.json_to_sheet(detailedData);
   detailedSheet['!cols'] = [
@@ -209,6 +282,7 @@ export function exportFootTrafficToExcel(
     { wch: 20 }, // Booth Section
     { wch: 40 }, // Notes
   ];
+  styleHeaderRow(detailedSheet);
   XLSX.utils.book_append_sheet(workbook, detailedSheet, 'Detailed Entries');
 
   // Sheet 4: Daily Totals
@@ -220,6 +294,7 @@ export function exportFootTrafficToExcel(
     { wch: 12 }, // Leads
     { wch: 15 }, // Conversion Rate
   ];
+  styleHeaderRow(dailySheet);
   XLSX.utils.book_append_sheet(workbook, dailySheet, 'Daily Totals');
 
   // Generate filename with date
@@ -237,40 +312,38 @@ export function exportAllDataToExcel(
   filename: string = 'trade-show-complete-report'
 ) {
   const workbook = XLSX.utils.book_new();
+  const { totalAllTime } = getVisitorTotals(footTrafficEntries);
 
   // Sheet 1: Leads
-  const leadsData = leads.map((item) => ({
-    'ID': item.id,
-    'Date': new Date(item.timestamp).toLocaleDateString(),
-    'Time': new Date(item.timestamp).toLocaleTimeString(),
-    'Dwell Time': formatDwellTime(item.dwellTime),
-    'Salesperson': SALESPEOPLE.find((s) => s.id === item.salesperson)?.name || item.salesperson || '',
-    'Booth Section': BOOTH_SECTIONS.find((s) => s.id === item.boothSection)?.name || item.boothSection || '',
-    'First Name': item.firstName,
-    'Last Name': item.lastName,
-    'Email': item.email,
-    'Phone': item.phone,
-    'Business Name': item.businessName,
-    'Business Type': item.businessType,
-    'Address': item.address,
-    'City': item.city,
-    'State': item.state,
-    'ZIP Code': item.zipCode,
-    'Interested Brands': BRANDS
-      .filter((b) => item.selectedBrands.includes(b.id))
-      .map((b) => b.name)
-      .join(', '),
-    'Interested Categories': CATEGORIES
-      .filter((c) => item.selectedCategories.includes(c.id))
-      .map((c) => c.name)
-      .join(', '),
-    'Preferred Contact': item.preferredContact,
-    'Best Time to Contact': item.bestTimeToContact,
-    'Notes': item.notes,
-    'AI Insights': item.aiInsights || '',
-  }));
+  const leadsData = sortLeadsForExport(leads).map((item) => mapLeadForExport(item, totalAllTime));
 
   const leadsSheet = XLSX.utils.json_to_sheet(leadsData);
+  leadsSheet['!cols'] = [
+    { wch: 15 }, // First Name
+    { wch: 15 }, // Last Name
+    { wch: 25 }, // Business Name
+    { wch: 14 }, // Business Type
+    { wch: 25 }, // Email
+    { wch: 15 }, // Phone
+    { wch: 16 }, // Salesperson
+    { wch: 22 }, // Booth Section
+    { wch: 12 }, // Date
+    { wch: 12 }, // Time
+    { wch: 12 }, // Dwell Time
+    { wch: 30 }, // Address
+    { wch: 15 }, // City
+    { wch: 15 }, // State
+    { wch: 10 }, // ZIP
+    { wch: 40 }, // Brands
+    { wch: 50 }, // Categories
+    { wch: 15 }, // Preferred Contact
+    { wch: 20 }, // Best Time
+    { wch: 24 }, // Visitors Counted (All Time)
+    { wch: 50 }, // Notes
+    { wch: 60 }, // AI Insights
+    { wch: 22 }, // ID
+  ];
+  styleHeaderRow(leadsSheet);
   XLSX.utils.book_append_sheet(workbook, leadsSheet, 'Leads');
 
   // Sheet 2: Foot Traffic Summary
@@ -279,7 +352,6 @@ export function exportAllDataToExcel(
     (entry) => new Date(entry.timestamp).toDateString() === today
   );
   const totalToday = todayEntries.reduce((sum, entry) => sum + entry.count, 0);
-  const totalAllTime = footTrafficEntries.reduce((sum, entry) => sum + entry.count, 0);
   const todayLeads = leads.filter(
     (lead) => new Date(lead.timestamp).toDateString() === today
   ).length;
@@ -295,10 +367,13 @@ export function exportAllDataToExcel(
 
   const trafficSummarySheet = XLSX.utils.json_to_sheet(trafficSummary);
   trafficSummarySheet['!cols'] = [{ wch: 30 }, { wch: 20 }];
+  styleHeaderRow(trafficSummarySheet);
   XLSX.utils.book_append_sheet(workbook, trafficSummarySheet, 'Traffic Summary');
 
   // Sheet 3: Foot Traffic Detailed
-  const trafficData = footTrafficEntries.map((entry) => ({
+  const trafficData = [...footTrafficEntries]
+    .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+    .map((entry) => ({
     'ID': entry.id,
     'Date': new Date(entry.timestamp).toLocaleDateString(),
     'Time': new Date(entry.timestamp).toLocaleTimeString(),
@@ -307,14 +382,30 @@ export function exportAllDataToExcel(
       ? BOOTH_SECTIONS.find((s) => s.id === entry.boothSection)?.name || entry.boothSection
       : 'All Areas',
     'Notes': entry.notes || '',
-  }));
+    }));
 
   const trafficSheet = XLSX.utils.json_to_sheet(trafficData);
+  trafficSheet['!cols'] = [
+    { wch: 25 }, // ID
+    { wch: 12 }, // Date
+    { wch: 12 }, // Time
+    { wch: 10 }, // Count
+    { wch: 20 }, // Booth Section
+    { wch: 40 }, // Notes
+  ];
+  styleHeaderRow(trafficSheet);
   XLSX.utils.book_append_sheet(workbook, trafficSheet, 'Foot Traffic Detail');
 
   // Sheet 4: Daily Summary
   const dailyTotals = calculateDailyTotals(footTrafficEntries, leads);
   const dailySheet = XLSX.utils.json_to_sheet(dailyTotals);
+  dailySheet['!cols'] = [
+    { wch: 12 }, // Date
+    { wch: 15 }, // Foot Traffic
+    { wch: 12 }, // Leads
+    { wch: 15 }, // Conversion Rate
+  ];
+  styleHeaderRow(dailySheet);
   XLSX.utils.book_append_sheet(workbook, dailySheet, 'Daily Summary');
 
   // Generate filename with date
