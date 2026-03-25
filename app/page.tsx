@@ -80,44 +80,48 @@ function TopNav({
       aria-label="Main navigation"
     >
       <div className="max-w-7xl mx-auto px-3 sm:px-4">
-        <div className="flex items-center justify-between h-14 sm:h-16">
-          <button
-            onClick={() => onViewChange('dashboard')}
-            className="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1 -ml-1"
-            aria-label="Go to dashboard home"
-          >
-            <span className="font-bold text-gray-800 text-sm md:text-base">Trade Shows Hub</span>
-          </button>
-          
-          <div className="flex items-center gap-1 sm:gap-2">
+        <div className="h-14 sm:h-16 flex items-center">
+          <div className="w-20 sm:w-auto sm:flex sm:items-center">
+            <button
+              onClick={() => onViewChange('dashboard')}
+              className="hidden sm:flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg p-1 -ml-1"
+              aria-label="Go to dashboard home"
+            >
+              <span className="font-bold text-gray-800 text-sm md:text-base">Trade Shows Hub</span>
+            </button>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center gap-2 sm:gap-2">
             <NavButton 
               active={currentView === 'dashboard'} 
               onClick={() => onViewChange('dashboard')}
-              icon={<LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
-              label="Overview"
+              icon={<LayoutDashboard className="w-4 h-4" />}
+              label="Home"
             />
             <NavButton 
               active={currentView === 'leads'} 
               onClick={() => onViewChange('leads')}
-              icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
+              icon={<Users className="w-4 h-4" />}
               label="Leads"
             />
             <NavButton 
               active={currentView === 'analytics'} 
               onClick={() => onViewChange('analytics')}
-              icon={<BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
-              label="Analytics"
+              icon={<BarChart3 className="w-4 h-4" />}
+              label="Stats"
             />
             <NavButton 
               active={currentView === 'traffic'} 
               onClick={() => onViewChange('traffic')}
-              icon={<Footprints className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
+              icon={<Footprints className="w-4 h-4" />}
               label="Traffic"
             />
-            <div className="w-px h-6 sm:h-8 bg-gray-200 mx-1 sm:mx-2" aria-hidden="true" />
+          </div>
+
+          <div className="flex items-center justify-end ml-2 sm:ml-3">
             <button
               onClick={() => onViewChange('form')}
-              className="flex items-center gap-1.5 px-3 py-2 sm:px-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium text-xs sm:text-sm hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+              className="flex items-center justify-center gap-1 w-20 sm:min-w-[120px] px-2.5 py-2 sm:px-4 bg-linear-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium text-[11px] sm:text-sm hover:shadow-lg transition-shadow focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               aria-label="Create new lead entry"
             >
               <Plus className="w-4 h-4" aria-hidden="true" />
@@ -144,7 +148,7 @@ function NavButton({
   return (
     <button
       onClick={onClick}
-      className={`w-11 h-11 sm:w-12 sm:h-12 md:w-auto md:h-auto px-0 md:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all flex items-center justify-center md:justify-start gap-0 md:gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+      className={`px-2.5 py-1.5 sm:px-3 rounded-lg font-medium text-[11px] sm:text-sm transition-all flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
         active
           ? 'bg-indigo-100 text-indigo-700'
           : 'text-gray-600 hover:bg-gray-100'
@@ -152,7 +156,7 @@ function NavButton({
       aria-current={active ? 'page' : undefined}
     >
       <span aria-hidden="true">{icon}</span>
-      <span className="hidden lg:inline">{label}</span>
+      <span>{label}</span>
     </button>
   );
 }

@@ -557,8 +557,66 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
               </motion.button>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
+            <>
+              <div className="md:hidden p-3 space-y-2">
+                {allSubmissions.map((lead, index) => (
+                  <motion.button
+                    key={lead.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.03 }}
+                    onClick={() => setSelectedLead(lead)}
+                    className="w-full text-left bg-gray-50 hover:bg-gray-100 rounded-xl p-3 border border-gray-100 transition-colors"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm truncate">
+                          {lead.firstName} {lead.lastName}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">{lead.businessName || '-'}</p>
+                      </div>
+                      <span className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        lead.businessType === 'wholesale'
+                          ? 'bg-indigo-100 text-indigo-700'
+                          : 'bg-pink-100 text-pink-700'
+                      }`}>
+                        {lead.businessType || 'N/A'}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-gray-600">
+                      <p className="truncate"><span className="text-gray-500">Rep:</span> {getSalespersonName(lead.salesperson)}</p>
+                      <p className="truncate"><span className="text-gray-500">Phone:</span> {lead.phone || '-'}</p>
+                      <p className="truncate col-span-2"><span className="text-gray-500">Email:</span> {lead.email}</p>
+                    </div>
+
+                    {lead.selectedBrands.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {lead.selectedBrands.slice(0, 2).map((brandId) => {
+                          const brand = BRANDS.find((b) => b.id === brandId);
+                          return brand ? (
+                            <span
+                              key={brandId}
+                              className="px-2 py-0.5 rounded text-[10px] text-white"
+                              style={{ backgroundColor: brand.color }}
+                            >
+                              {brand.name}
+                            </span>
+                          ) : null;
+                        })}
+                        {lead.selectedBrands.length > 2 && (
+                          <span className="px-2 py-0.5 rounded text-[10px] bg-gray-200 text-gray-600">
+                            +{lead.selectedBrands.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </motion.button>
+                ))}
+              </div>
+
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Name</th>
@@ -631,8 +689,9 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
                     </motion.tr>
                   ))}
                 </tbody>
-              </table>
-            </div>
+                </table>
+              </div>
+            </>
           )}
         </motion.div>
 
