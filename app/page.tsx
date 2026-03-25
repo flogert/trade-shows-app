@@ -93,25 +93,25 @@ function TopNav({
             <NavButton 
               active={currentView === 'dashboard'} 
               onClick={() => onViewChange('dashboard')}
-              icon={<LayoutDashboard className="w-4 h-4" />}
+              icon={<LayoutDashboard className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
               label="Overview"
             />
             <NavButton 
               active={currentView === 'leads'} 
               onClick={() => onViewChange('leads')}
-              icon={<Users className="w-4 h-4" />}
+              icon={<Users className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
               label="Leads"
             />
             <NavButton 
               active={currentView === 'analytics'} 
               onClick={() => onViewChange('analytics')}
-              icon={<BarChart3 className="w-4 h-4" />}
+              icon={<BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
               label="Analytics"
             />
             <NavButton 
               active={currentView === 'traffic'} 
               onClick={() => onViewChange('traffic')}
-              icon={<Footprints className="w-4 h-4" />}
+              icon={<Footprints className="w-5 h-5 sm:w-6 sm:h-6 md:w-4 md:h-4" />}
               label="Traffic"
             />
             <div className="w-px h-6 sm:h-8 bg-gray-200 mx-1 sm:mx-2" aria-hidden="true" />
@@ -144,7 +144,7 @@ function NavButton({
   return (
     <button
       onClick={onClick}
-      className={`px-2 py-2 sm:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+      className={`w-11 h-11 sm:w-12 sm:h-12 md:w-auto md:h-auto px-0 md:px-3 rounded-lg font-medium text-xs sm:text-sm transition-all flex items-center justify-center md:justify-start gap-0 md:gap-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
         active
           ? 'bg-indigo-100 text-indigo-700'
           : 'text-gray-600 hover:bg-gray-100'
@@ -152,7 +152,7 @@ function NavButton({
       aria-current={active ? 'page' : undefined}
     >
       <span aria-hidden="true">{icon}</span>
-      <span className="hidden md:inline">{label}</span>
+      <span className="hidden lg:inline">{label}</span>
     </button>
   );
 }

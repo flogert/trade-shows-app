@@ -359,42 +359,42 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.02 }}
                   onClick={() => handleLeadClick(lead)}
-                  className={`rounded-xl p-4 border cursor-pointer transition-all ${
+                  className={`rounded-xl p-4 sm:p-5 border cursor-pointer transition-all ${
                     hideHeader
                       ? 'bg-white border-gray-200 hover:border-indigo-400 hover:bg-gray-50 shadow-sm'
                       : 'bg-white/5 border-white/10 hover:border-indigo-500/50 hover:bg-white/10'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    {/* Avatar */}
-                    <div className="w-12 h-12 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shrink-0">
-                      {lead.firstName.charAt(0)}
-                    </div>
-                    
-                    {/* Main Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <h4 className={`font-medium truncate ${hideHeader ? 'text-gray-900' : 'text-white'}`}>{lead.firstName} {lead.lastName}</h4>
-                        <span className={`px-2 py-0.5 rounded text-xs font-bold shrink-0 ${getGradeColor(score.grade)}`}>
-                          {score.grade}
-                        </span>
-                        <span className="shrink-0">{getEngagementIcon(score.engagementLevel)}</span>
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center">
+                    <div className="flex items-start gap-3">
+                      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shrink-0">
+                        {lead.firstName.charAt(0)}
                       </div>
-                      <div className={`flex items-center gap-3 text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
-                        <span className="truncate">{lead.businessName || 'Individual'}</span>
-                        <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
-                        <span className="capitalize">{lead.businessType || 'N/A'}</span>
-                        {lead.salesperson && (
-                          <>
-                            <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
-                            <span className="truncate">{getSalespersonName(lead.salesperson)}</span>
-                          </>
-                        )}
+
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <h4 className={`font-semibold text-sm sm:text-base truncate ${hideHeader ? 'text-gray-900' : 'text-white'}`}>{lead.firstName} {lead.lastName}</h4>
+                          <span className={`px-2 py-0.5 rounded text-xs font-bold shrink-0 ${getGradeColor(score.grade)}`}>
+                            {score.grade}
+                          </span>
+                          <span className="shrink-0">{getEngagementIcon(score.engagementLevel)}</span>
+                        </div>
+
+                        <div className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
+                          <span className="truncate max-w-[180px] sm:max-w-[260px]">{lead.businessName || 'Individual'}</span>
+                          <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
+                          <span className="capitalize">{lead.businessType || 'N/A'}</span>
+                          {lead.salesperson && (
+                            <>
+                              <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
+                              <span className="truncate max-w-[140px]">{getSalespersonName(lead.salesperson)}</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
 
-                    {/* Score Bar */}
-                    <div className="hidden sm:block w-32 shrink-0">
+                    <div className="w-full md:w-40 md:ml-auto shrink-0">
                       <div className={`flex justify-between text-xs mb-1 ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
                         <span>Score</span>
                         <span className={`font-medium ${hideHeader ? 'text-gray-900' : 'text-white'}`}>{score.total}</span>
@@ -410,34 +410,35 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
                       </div>
                     </div>
 
-                    {/* Brands */}
-                    <div className="hidden md:flex flex-wrap gap-1 w-40 shrink-0">
-                      {lead.selectedBrands.slice(0, 2).map((brandId) => {
-                        const brand = BRANDS.find((b) => b.id === brandId);
-                        return brand ? (
-                          <span
-                            key={brandId}
-                            className="px-2 py-0.5 rounded text-xs text-white"
-                            style={{ backgroundColor: brand.color }}
-                          >
-                            {brand.name}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex flex-wrap gap-1 min-w-0">
+                        {lead.selectedBrands.slice(0, 2).map((brandId) => {
+                          const brand = BRANDS.find((b) => b.id === brandId);
+                          return brand ? (
+                            <span
+                              key={brandId}
+                              className="px-2 py-0.5 rounded text-xs text-white"
+                              style={{ backgroundColor: brand.color }}
+                            >
+                              {brand.name}
+                            </span>
+                          ) : null;
+                        })}
+                        {lead.selectedBrands.length > 2 && (
+                          <span className={`px-2 py-0.5 rounded text-xs ${hideHeader ? 'bg-gray-200 text-gray-600' : 'bg-white/20 text-gray-300'}`}>
+                            +{lead.selectedBrands.length - 2}
                           </span>
-                        ) : null;
-                      })}
-                      {lead.selectedBrands.length > 2 && (
-                        <span className={`px-2 py-0.5 rounded text-xs ${hideHeader ? 'bg-gray-200 text-gray-600' : 'bg-white/20 text-gray-300'}`}>
-                          +{lead.selectedBrands.length - 2}
-                        </span>
-                      )}
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className={`hidden sm:block text-xs text-right ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
+                          {new Date(lead.timestamp).toLocaleDateString()}
+                        </div>
+                        <ChevronRight className={`w-5 h-5 shrink-0 ${hideHeader ? 'text-gray-400' : 'text-gray-500'}`} />
+                      </div>
                     </div>
 
-                    {/* Date */}
-                    <div className={`hidden lg:block text-xs w-24 text-right shrink-0 ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
-                      {new Date(lead.timestamp).toLocaleDateString()}
-                    </div>
-
-                    {/* Arrow */}
-                    <ChevronRight className={`w-5 h-5 shrink-0 ${hideHeader ? 'text-gray-400' : 'text-gray-500'}`} />
                   </div>
                 </motion.div>
               );
