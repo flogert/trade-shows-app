@@ -114,12 +114,12 @@ export interface CRMConfig {
 }
 
 export const BRANDS = [
-  { id: 'beri', name: 'Beri', color: '#6366f1' },
-  { id: 'raz', name: 'Raz', color: '#ec4899' },
-  { id: 'lost-mary', name: 'Lost Mary', color: '#8b5cf6' },
-  { id: 'dinner-lady', name: 'Dinner Lady', color: '#f59e0b' },
-  { id: 'one-tank', name: 'One Tank', color: '#10b981' },
-  { id: 'ryl', name: 'RYL', color: '#ef4444' },
+  { id: 'arc', name: 'ARC', color: '#0f766e' },
+  { id: 'beri', name: 'BERI', color: '#6366f1' },
+  { id: 'yovo', name: 'YOVO', color: '#f59e0b' },
+  { id: 'lost-mary', name: 'LOST MARY', color: '#8b5cf6' },
+  { id: 'raz', name: 'RAZ', color: '#ec4899' },
+  { id: 'sea', name: 'SEA', color: '#0ea5e9' },
 ] as const;
 
 export const CATEGORIES = [
@@ -144,12 +144,12 @@ export const BUSINESS_TYPES = [
 ] as const;
 
 export const BOOTH_SECTIONS = [
-  { id: 'beri-display', name: 'Beri Display' },
-  { id: 'dinner-lady-display', name: 'Dinner Lady Display' },
-  { id: 'lost-mary-display', name: 'Lost Mary Display' },
-  { id: 'one-tank-display', name: 'One Tank Display' },
-  { id: 'raz-display', name: 'Raz Display' },
-  { id: 'ryl-display', name: 'RYL Display' },
+  { id: 'arc-display', name: 'ARC Display' },
+  { id: 'beri-display', name: 'BERI Display' },
+  { id: 'yovo-display', name: 'YOVO Display' },
+  { id: 'lost-mary-display', name: 'LOST MARY Display' },
+  { id: 'raz-display', name: 'RAZ Display' },
+  { id: 'sea-display', name: 'SEA Display' },
 ] as const;
 
 export const SALESPEOPLE = [

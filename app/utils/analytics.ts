@@ -167,12 +167,12 @@ export function generateHeatmapData(leads: CustomerData[]): HeatmapZone[] {
   // Define booth layout zones with positions
   const zonePositions: Record<string, { x: number; y: number; width: number; height: number }> = {
     'entrance': { x: 40, y: 75, width: 20, height: 20 },
-    'beri-display': { x: 5, y: 5, width: 28, height: 30 },
-    'raz-display': { x: 36, y: 5, width: 28, height: 30 },
-    'lost-mary-display': { x: 67, y: 5, width: 28, height: 30 },
-    'dinner-lady-display': { x: 5, y: 40, width: 28, height: 30 },
-    'one-tank-display': { x: 36, y: 40, width: 28, height: 30 },
-    'ryl-display': { x: 67, y: 40, width: 28, height: 30 },
+    'arc-display': { x: 5, y: 5, width: 28, height: 30 },
+    'beri-display': { x: 36, y: 5, width: 28, height: 30 },
+    'yovo-display': { x: 67, y: 5, width: 28, height: 30 },
+    'lost-mary-display': { x: 5, y: 40, width: 28, height: 30 },
+    'raz-display': { x: 36, y: 40, width: 28, height: 30 },
+    'sea-display': { x: 67, y: 40, width: 28, height: 30 },
     'demo-station': { x: 5, y: 75, width: 30, height: 20 },
     'consultation': { x: 70, y: 75, width: 25, height: 20 },
     'product-wall': { x: 40, y: 40, width: 20, height: 30 },
@@ -258,15 +258,15 @@ export function calculateTrends(currentMetrics: BoothMetrics, previousMetrics?: 
 
 export function generateVisitorFlow(): { from: string; to: string; count: number }[] {
   return [
-    { from: 'Entrance', to: 'Raz Display', count: 45 },
-    { from: 'Entrance', to: 'Beri Display', count: 38 },
+    { from: 'Entrance', to: 'RAZ Display', count: 45 },
+    { from: 'Entrance', to: 'BERI Display', count: 38 },
     { from: 'Entrance', to: 'Product Wall', count: 28 },
-    { from: 'Raz Display', to: 'Demo Station', count: 32 },
-    { from: 'Beri Display', to: 'Demo Station', count: 24 },
+    { from: 'RAZ Display', to: 'Demo Station', count: 32 },
+    { from: 'BERI Display', to: 'Demo Station', count: 24 },
     { from: 'Demo Station', to: 'Consultation', count: 42 },
     { from: 'Product Wall', to: 'Consultation', count: 18 },
     { from: 'Consultation', to: 'Exit (Converted)', count: 35 },
-    { from: 'Raz Display', to: 'Exit (Bounced)', count: 12 },
+    { from: 'RAZ Display', to: 'Exit (Bounced)', count: 12 },
     { from: 'Entrance', to: 'Exit (Bounced)', count: 22 },
   ];
 }
