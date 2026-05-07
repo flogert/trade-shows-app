@@ -7,6 +7,17 @@ import { getSupabaseBrowserClient, isSupabaseConfigured } from '../lib/supabase'
 import { TEAM_MEMBERS } from '../types';
 import { useFormStore } from '../store/formStore';
 
+const LAST_EMAIL_KEY = 'trade-shows:last-email';
+const LAST_SALESPERSON_KEY = 'trade-shows:last-salesperson';
+
+function getStoredValue(key: string) {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  return window.localStorage.getItem(key) ?? '';
+}
+
 export default function AuthScreen() {
   const {
     authError,
@@ -17,8 +28,8 @@ export default function AuthScreen() {
     signInWithPassword,
     signUpWithPassword,
   } = useFormStore();
-  const [salespersonId, setSalespersonId] = useState('');
-  const [email, setEmail] = useState('');
+  const [salespersonId, setSalespersonId] = useState(() => getStoredValue(LAST_SALESPERSON_KEY));
+  const [email, setEmail] = useState(() => getStoredValue(LAST_EMAIL_KEY).trim().toLowerCase());
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -65,6 +76,15 @@ export default function AuthScreen() {
       active = false;
     };
   }, [authMode]);
+
+  const rememberCredentials = (normalizedEmail: string, nextSalespersonId: string) => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    window.localStorage.setItem(LAST_EMAIL_KEY, normalizedEmail);
+    window.localStorage.setItem(LAST_SALESPERSON_KEY, nextSalespersonId);
+  };
 
   const validateSelectedMember = () => {
     const normalizedEmail = email.trim().toLowerCase();
@@ -159,6 +179,8 @@ export default function AuthScreen() {
     }
 
     if (result.ok) {
+      rememberCredentials(normalizedEmail, salespersonId);
+
       if (authMode === 'setup-password') {
         setNotice(recoveryEmail ? 'Password updated. Loading your workspace...' : `Password created for ${normalizedEmail}.`);
       } else {
@@ -190,7 +212,7 @@ export default function AuthScreen() {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3" aria-labelledby="auth-title">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-2.5 sm:mt-5 sm:space-y-3" aria-labelledby="auth-title" autoComplete="on">
               <label className="block text-sm font-medium text-slate-700" htmlFor="signin-name">
                 Your name
               </label>
@@ -198,6 +220,7 @@ export default function AuthScreen() {
                 <User className="h-4.5 w-4.5 text-slate-400" />
                 <select
                   id="signin-name"
+                  name="salesperson"
                   required
                   value={salespersonId}
                   onChange={(event) => {
@@ -224,6 +247,7 @@ export default function AuthScreen() {
                 <Mail className="h-4.5 w-4.5 text-slate-400" />
                 <input
                   id="signin-email"
+                  name="email"
                   type="email"
                   autoComplete="username"
                   required
@@ -241,6 +265,7 @@ export default function AuthScreen() {
                 <LockKeyhole className="h-4.5 w-4.5 text-slate-400" />
                 <input
                   id="signin-password"
+                  name="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete={setupMode ? 'new-password' : 'current-password'}
                   required
@@ -269,6 +294,7 @@ export default function AuthScreen() {
                     <KeyRound className="h-4.5 w-4.5 text-slate-400" />
                     <input
                       id="signin-confirm-password"
+                      name="confirmPassword"
                       type={showConfirmPassword ? 'text' : 'password'}
                       autoComplete="new-password"
                       required
@@ -324,6 +350,10 @@ export default function AuthScreen() {
               >
                 {setupMode ? 'Back to sign in' : 'Set up password'}
               </button>
+
+              <p className="text-center text-xs text-slate-500" aria-live="polite">
+                This device remembers your last email. Your password can be remembered by your browser or password manager.
+              </p>
           </form>
         </motion.div>
       </div>

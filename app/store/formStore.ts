@@ -335,7 +335,16 @@ export const useFormStore = create<FormState>()(
           return;
         }
 
-        set({ authStatus: 'loading', authError: null, isSyncing: true });
+        const currentState = get();
+        const isBackgroundRefresh =
+          currentState.authStatus === 'authenticated' &&
+          currentState.currentUser?.authUserId === session.user.id;
+
+        set({
+          authStatus: isBackgroundRefresh ? 'authenticated' : 'loading',
+          authError: null,
+          isSyncing: true,
+        });
 
         try {
           const profile = await fetchProfileForSession(session);
