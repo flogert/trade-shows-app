@@ -29,8 +29,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     env:
-      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ vars.NEXT_PUBLIC_SUPABASE_URL || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ vars.NEXT_PUBLIC_SUPABASE_ANON_KEY || secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -79,12 +79,12 @@ jobs:
       - name: Validate public Supabase environment variables
         run: |
           if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
-            echo "Missing NEXT_PUBLIC_SUPABASE_URL GitHub secret."
+            echo "Missing NEXT_PUBLIC_SUPABASE_URL GitHub variable or secret."
             exit 1
           fi
 
           if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY GitHub secret."
+            echo "Missing NEXT_PUBLIC_SUPABASE_ANON_KEY GitHub variable or secret."
             exit 1
           fi
       - name: Build with Next.js
