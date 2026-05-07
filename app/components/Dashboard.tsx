@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormStore } from '../store/formStore';
-import { CustomerData, BRANDS, BOOTH_SECTIONS, CATEGORIES, SALESPEOPLE } from '../types';
+import { CustomerData, BRANDS, BOOTH_SECTIONS, CATEGORIES, TEAM_MEMBERS } from '../types';
 import { exportToExcel, generateEmailContent, copyToClipboard } from '../utils/export';
 import { generateBulkAnalysis } from '../utils/ai';
 import { 
@@ -34,10 +34,13 @@ interface DashboardProps {
   hideHeader?: boolean;
 }
 
+const MANAGER_REPORT_EMAIL = 'tisha.s@safagoods.com';
+
 export default function Dashboard({ onBackToForm, hideHeader = false }: DashboardProps) {
-  const { allSubmissions, footTrafficEntries, clearAllSubmissions } = useFormStore();
+  const { allSubmissions, footTrafficEntries, clearAllSubmissions, currentUser, isSyncing, lastSyncedAt } = useFormStore();
   const [selectedLead, setSelectedLead] = useState<CustomerData | null>(null);
   const [copied, setCopied] = useState(false);
+  const [managerReportQueued, setManagerReportQueued] = useState(false);
   const [bulkAnalysis, setBulkAnalysis] = useState<string>('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisCopied, setAnalysisCopied] = useState(false);
@@ -63,6 +66,20 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSendManagerReport = () => {
+    if (allSubmissions.length === 0) {
+      alert('No leads to send');
+      return;
+    }
+
+    const subject = encodeURIComponent(`Trade Show Report - ${currentUser?.displayName || 'Sales Team'}`);
+    const body = encodeURIComponent(generateEmailContent(allSubmissions));
+
+    window.location.href = `mailto:${MANAGER_REPORT_EMAIL}?subject=${subject}&body=${body}`;
+    setManagerReportQueued(true);
+    setTimeout(() => setManagerReportQueued(false), 3000);
+  };
+
   const handleBulkAnalysis = async () => {
     if (allSubmissions.length === 0) {
       alert('No leads to analyze');
@@ -84,9 +101,11 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
 
   const handleClearAll = () => {
     if (confirm('Are you sure you want to clear all submissions? This cannot be undone.')) {
-      clearAllSubmissions();
+      void clearAllSubmissions();
     }
   };
+
+  const canManageData = currentUser?.role === 'manager' || currentUser?.role === 'admin';
 
   const stats = {
     total: allSubmissions.length,
@@ -94,8 +113,8 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
     retail: allSubmissions.filter((s) => s.businessType === 'retail').length,
   };
 
-  const getSalespersonName = (id?: string) =>
-    SALESPEOPLE.find((s) => s.id === id)?.name || id || '-';
+  const getSalespersonName = (id?: string, displayName?: string) =>
+    displayName || TEAM_MEMBERS.find((member) => member.id === id)?.name || id || '-';
 
   const getBoothSectionName = (id?: string) =>
     BOOTH_SECTIONS.find((s) => s.id === id)?.name || id || '-';
@@ -142,6 +161,21 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
               >
                 {copied ? <><Check className="w-4 h-4" /> Copied!</> : <><Mail className="w-4 h-4" /> Copy for Email</>}
               </motion.button>
+              {!canManageData && (
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleSendManagerReport}
+                  className="px-4 py-2 rounded-xl bg-linear-to-r from-violet-500 to-fuchsia-500 text-white font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                  aria-label="Send your report to Tisha"
+                >
+                  {managerReportQueued ? (
+                    <><Check className="w-4 h-4" /> Draft Ready</>
+                  ) : (
+                    <><Mail className="w-4 h-4" /> Send to Tisha</>
+                  )}
+                </motion.button>
+              )}
             </div>
           </motion.div>
         )}
@@ -179,6 +213,25 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
                 </>
               )}
             </motion.button>
+            {!canManageData && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={handleSendManagerReport}
+                className="px-4 py-2 rounded-xl bg-linear-to-r from-violet-500 to-fuchsia-500 text-white font-medium shadow-md hover:shadow-lg transition-all flex items-center gap-2"
+                aria-label="Send your report to Tisha"
+              >
+                {managerReportQueued ? (
+                  <>
+                    <Check className="w-4 h-4" /> Draft Ready
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4" /> Send to Tisha
+                  </>
+                )}
+              </motion.button>
+            )}
           </motion.div>
         )}
 
@@ -529,8 +582,19 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
           className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden"
         >
           <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-            <h2 className="text-lg font-bold text-gray-800">All Leads</h2>
-            {allSubmissions.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold text-gray-800">All Leads</h2>
+              {(isSyncing || lastSyncedAt) && (
+                <p className="text-xs text-gray-500 mt-1">
+                  {isSyncing
+                    ? 'Syncing with Supabase...'
+                    : lastSyncedAt
+                      ? `Last synced ${new Date(lastSyncedAt).toLocaleTimeString()}`
+                      : 'Supabase sync ready'}
+                </p>
+              )}
+            </div>
+            {allSubmissions.length > 0 && canManageData && (
               <button
                 onClick={handleClearAll}
                 className="text-sm text-red-500 hover:text-red-600 font-medium"
@@ -585,7 +649,7 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
                     </div>
 
                     <div className="mt-2 grid grid-cols-2 gap-x-2 gap-y-1 text-xs text-gray-600">
-                      <p className="truncate"><span className="text-gray-500">Rep:</span> {getSalespersonName(lead.salesperson)}</p>
+                      <p className="truncate"><span className="text-gray-500">Rep:</span> {getSalespersonName(lead.salesperson, lead.salespersonName)}</p>
                       <p className="truncate"><span className="text-gray-500">Phone:</span> {lead.phone || '-'}</p>
                       <p className="truncate col-span-2"><span className="text-gray-500">Email:</span> {lead.email}</p>
                     </div>
@@ -643,7 +707,7 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
                         <div className="text-sm text-gray-500">{lead.email}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        <div className="font-medium text-gray-800">{getSalespersonName(lead.salesperson)}</div>
+                        <div className="font-medium text-gray-800">{getSalespersonName(lead.salesperson, lead.salespersonName)}</div>
                         <div className="text-xs text-gray-500">{getBoothSectionName(lead.boothSection)}</div>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{lead.businessName || '-'}</td>
@@ -729,7 +793,7 @@ export default function Dashboard({ onBackToForm, hideHeader = false }: Dashboar
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm text-gray-500">Salesperson</p>
-                      <p className="font-medium text-gray-800">{getSalespersonName(selectedLead.salesperson)}</p>
+                      <p className="font-medium text-gray-800">{getSalespersonName(selectedLead.salesperson, selectedLead.salespersonName)}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Booth Section</p>

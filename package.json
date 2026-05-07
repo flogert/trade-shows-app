@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "supabase:reset-password": "node scripts/reset-supabase-password.mjs"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.2",
+    "@supabase/supabase-js": "^2.105.3",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.29.2",
     "html5-qrcode": "^2.3.8",

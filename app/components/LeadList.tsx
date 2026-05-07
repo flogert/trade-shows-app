@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormStore } from '../store/formStore';
-import { CustomerData, BRANDS, BOOTH_SECTIONS, CATEGORIES, SALESPEOPLE } from '../types';
+import { CustomerData, BRANDS, BOOTH_SECTIONS, CATEGORIES, TEAM_MEMBERS } from '../types';
 import {
   calculateLeadScore,
   segmentLeads,
@@ -127,8 +127,8 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
     ? 'min-h-dvh bg-linear-to-br from-slate-50 via-indigo-50 to-purple-50 p-3 sm:p-4 md:p-6 embed-light'
     : 'min-h-dvh bg-linear-to-br from-slate-900 via-indigo-950 to-purple-950 p-3 sm:p-4 md:p-6';
 
-  const getSalespersonName = (id?: string) =>
-    SALESPEOPLE.find((s) => s.id === id)?.name || id || '';
+  const getSalespersonName = (id?: string, displayName?: string) =>
+    displayName || TEAM_MEMBERS.find((member) => member.id === id)?.name || id || '';
 
   const getBoothSectionName = (id?: string) =>
     BOOTH_SECTIONS.find((s) => s.id === id)?.name || id || '';
@@ -381,13 +381,13 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
                         </div>
 
                         <div className={`flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>
-                          <span className="truncate max-w-[180px] sm:max-w-[260px]">{lead.businessName || 'Individual'}</span>
+                          <span className="truncate max-w-45 sm:max-w-65">{lead.businessName || 'Individual'}</span>
                           <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
                           <span className="capitalize">{lead.businessType || 'N/A'}</span>
                           {lead.salesperson && (
                             <>
                               <span className={hideHeader ? 'text-gray-300' : 'text-gray-600'}>•</span>
-                              <span className="truncate max-w-[140px]">{getSalespersonName(lead.salesperson)}</span>
+                              <span className="truncate max-w-35">{getSalespersonName(lead.salesperson, lead.salespersonName)}</span>
                             </>
                           )}
                         </div>
@@ -470,7 +470,7 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
                         <p className={`text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-400'}`}>{lead.businessName || 'Individual'}</p>
                         {(lead.salesperson || lead.boothSection) && (
                           <p className={`text-xs ${hideHeader ? 'text-gray-400' : 'text-gray-500'}`}>
-                            {getSalespersonName(lead.salesperson)}
+                            {getSalespersonName(lead.salesperson, lead.salespersonName)}
                             {lead.salesperson && lead.boothSection ? ' • ' : ''}
                             {getBoothSectionName(lead.boothSection)}
                           </p>
@@ -572,7 +572,7 @@ export default function LeadList({ onBack, hideHeader = false }: LeadListProps) 
                         <p className={`text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-500'}`}>{selectedLead.email}</p>
                         {(selectedLead.salesperson || selectedLead.boothSection) && (
                           <p className={`text-sm ${hideHeader ? 'text-gray-500' : 'text-gray-500'}`}>
-                            {getSalespersonName(selectedLead.salesperson)}
+                            {getSalespersonName(selectedLead.salesperson, selectedLead.salespersonName)}
                             {selectedLead.salesperson && selectedLead.boothSection ? ' • ' : ''}
                             {getBoothSectionName(selectedLead.boothSection)}
                           </p>

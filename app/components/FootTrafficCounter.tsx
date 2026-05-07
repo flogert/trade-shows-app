@@ -45,6 +45,7 @@ export default function FootTrafficCounter({ onBack, hideHeader = false }: FootT
   const { 
     footTrafficEntries, 
     allSubmissions,
+    currentUser,
     incrementFootTraffic, 
     addFootTraffic,
     clearFootTraffic 
@@ -78,12 +79,14 @@ export default function FootTrafficCounter({ onBack, hideHeader = false }: FootT
     ? Math.round(activeHours.reduce((sum, h) => sum + h.count, 0) / activeHours.length)
     : 0;
 
+  const canManageData = currentUser?.role === 'manager' || currentUser?.role === 'admin';
+
   const handleIncrement = useCallback((amount: number = 1) => {
     if (selectedSection || notes) {
-      addFootTraffic(amount, selectedSection || undefined, notes || undefined);
+      void addFootTraffic(amount, selectedSection || undefined, notes || undefined);
       setNotes('');
     } else {
-      incrementFootTraffic(amount);
+      void incrementFootTraffic(amount);
     }
     setAnimateCount(true);
     setTimeout(() => setAnimateCount(false), 200);
@@ -91,7 +94,7 @@ export default function FootTrafficCounter({ onBack, hideHeader = false }: FootT
 
   const handleClearAll = () => {
     if (confirm('Are you sure you want to clear all foot traffic data? This cannot be undone.')) {
-      clearFootTraffic();
+      void clearFootTraffic();
     }
   };
 
@@ -466,15 +469,17 @@ export default function FootTrafficCounter({ onBack, hideHeader = false }: FootT
                   <Download className="w-3 h-3" />
                   Export
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleClearAll}
-                  className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-1"
-                >
-                  <RotateCcw className="w-3 h-3" />
-                  Reset
-                </motion.button>
+                {canManageData && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleClearAll}
+                    className="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors flex items-center gap-1"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Reset
+                  </motion.button>
+                )}
               </div>
             </div>
 

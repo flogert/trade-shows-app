@@ -10,7 +10,7 @@ A professional, mobile-friendly lead retrieval application for teams attending t
 
 ## 🌟 Overview
 
-Trade Shows Hub is an all-in-one solution for retrieving, managing, and analyzing leads at trade shows and exhibitions. It features a slide-based form wizard, real-time analytics, CRM integration, and AI-powered lead scoring.
+Trade Shows Hub is an all-in-one solution for retrieving, managing, and analyzing leads at trade shows and exhibitions. It features a slide-based form wizard, real-time analytics, CRM integration, AI-powered lead scoring, and Supabase-backed user accounts with role-based access.
 
 ## ✨ Key Features
 
@@ -19,7 +19,14 @@ Trade Shows Hub is an all-in-one solution for retrieving, managing, and analyzin
 - **Beautiful Animations** - Powered by Framer Motion with 60fps transitions
 - **Progress Indicator** - Visual step tracking with completion dots
 - **Smart Validation** - Real-time field validation with helpful feedback
-- **Offline Support** - Local storage persistence for unreliable network conditions
+- **Online Sync** - Leads and foot traffic now persist to Supabase so the team shares one live dataset
+
+### 🔐 Supabase Accounts & Roles
+- **Password Login** - Authorized staff sign in with a Supabase email and password
+- **Selected User Access** - Only pre-approved emails in `salesperson_profiles` can open the app
+- **Role-Based Permissions** - `salesperson`, `manager`, and `admin` roles control data visibility and destructive actions
+- **Salesperson Locking** - The logged-in user becomes the lead owner automatically during collection
+- **Server-Only Admin Support** - Optional service-role configuration supports password resets and other admin workflows from trusted server code
 
 ### 🤖 AI-Powered Features
 - **Personalized Insights** - AI analyzes each lead's context and engagement signals
@@ -64,18 +71,26 @@ cd trade-shows-app
 npm install
 ```
 
-3. (Optional) Set up AI features:
+3. Create your environment file:
 ```bash
-cp .env.local.example .env.local
+copy .env.local.example .env.local
 ```
-Then edit `.env.local` and add your OpenAI API key.
 
-4. Start the development server:
+4. Set up Supabase:
+- Create a Supabase project
+- Copy your project URL, anon key, and optional service-role key into `.env.local`
+- Open the SQL editor in Supabase and run `supabase/schema.sql`
+- Update the seeded emails in `salesperson_profiles` so they match your real sales team
+- In Supabase Auth, enable email/password sign-in for the authorized team emails
+
+5. (Optional) Add AI features by setting `NEXT_PUBLIC_OPENAI_API_KEY`.
+
+6. Start the development server:
 ```bash
 npm run dev
 ```
 
-5. Open [http://localhost:3000](http://localhost:3000)
+7. Open [http://localhost:3000](http://localhost:3000)
 
 ## 🔧 Configuration
 
@@ -83,9 +98,40 @@ npm run dev
 
 | Variable | Description | Required |
 |----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key | Yes |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only admin key for password resets and other auth-admin actions | No |
 | `NEXT_PUBLIC_OPENAI_API_KEY` | OpenAI API key for AI insights | No |
 
-Without the API key, the app will use built-in local insights generation.
+Without the OpenAI key, the app will use built-in local insights generation.
+
+The service-role key must stay server-side only. Never expose it in client components or browser bundles.
+
+### Admin Password Resets
+
+After adding `SUPABASE_SERVICE_ROLE_KEY` to `.env.local`, you can run:
+
+```bash
+npm run supabase:reset-password -- flogert@rocketmail.com TempPassword123!
+```
+
+This uses the server-side script in `scripts/reset-supabase-password.mjs` to look up the auth user and set a temporary password.
+
+## 🗄️ Supabase Data Model
+
+The app now expects these Supabase tables and policies:
+
+- `salesperson_profiles`: authorized users, mapped email address, salesperson label, and role
+- `leads`: JSON payload for each collected lead, linked to the salesperson profile
+- `foot_traffic_entries`: JSON payload for each traffic event, linked to the salesperson profile
+
+The full schema, RLS policies, and seed examples live in `supabase/schema.sql`.
+
+### Default Role Behavior
+
+- `salesperson` can sign in and work with their own leads and foot-traffic records
+- `manager` can view all shared data and clear team data when needed
+- `admin` has the same visibility as manager and is intended for full booth ownership
 
 ## 📁 Project Structure
 
@@ -95,9 +141,13 @@ app/
 │   ├── slides/           # Multi-step form screens
 │   ├── Dashboard.tsx     # Lead management dashboard
 │   ├── FormWizard.tsx    # Main form controller
+│   ├── AuthScreen.tsx    # Supabase sign-in and password-setup screen
 │   └── SlideWrapper.tsx  # Animation wrapper
+├── lib/
+│   ├── database.ts       # Supabase row mapping helpers
+│   └── supabase.ts       # Browser client and env checks
 ├── store/
-│   └── formStore.ts      # Zustand state management
+│   └── formStore.ts      # Zustand state + Supabase sync/auth methods
 ├── types/
 │   └── index.ts          # TypeScript definitions
 ├── utils/
@@ -155,7 +205,9 @@ Edit `app/types/index.ts` to adjust selectable options used by the form and dash
 
 ## 🔒 Security
 
-- No sensitive data stored in local storage (only lead metadata)
+- Supabase Auth protects access with email magic links
+- Row-level security limits each salesperson to the correct records
+- Only form progress and draft state stay in local storage; live data is remote
 - API keys are environment-scoped
 - No `X-Powered-By` header exposed
 - Input validation on all form fields

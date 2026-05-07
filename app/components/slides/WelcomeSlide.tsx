@@ -4,11 +4,10 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import SlideWrapper from '../SlideWrapper';
 import { useFormStore } from '../../store/formStore';
-import { BOOTH_SECTIONS, SALESPEOPLE } from '../../types';
+import { BOOTH_SECTIONS } from '../../types';
 import { 
   LayoutDashboard, 
   MapPin, 
-  User, 
   ArrowRight
 } from 'lucide-react';
 
@@ -18,19 +17,19 @@ interface WelcomeSlideProps {
 }
 
 export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideProps) {
-  const { updateFormData, formData } = useFormStore();
+  const { updateFormData, formData, currentUser } = useFormStore();
   const [selectedSection, setSelectedSection] = useState(formData.boothSection || '');
-  const [selectedPerson, setSelectedPerson] = useState(formData.salesperson || '');
+  const salespersonValue = currentUser?.salespersonId || formData.salesperson;
 
   const handleStart = () => {
-    if (!selectedSection || !selectedPerson) {
+    if (!selectedSection || !salespersonValue) {
       return;
     }
-    updateFormData({ boothSection: selectedSection, salesperson: selectedPerson });
+    updateFormData({ boothSection: selectedSection, salesperson: salespersonValue });
     onStart();
   };
 
-  const canStart = selectedSection && selectedPerson;
+  const canStart = selectedSection && salespersonValue;
 
   return (
     <SlideWrapper>
@@ -40,6 +39,7 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.3 }}
+          type="button"
           onClick={onViewDashboard}
           className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 px-3 py-2 sm:px-4 sm:py-2 bg-white/90 backdrop-blur-sm border border-gray-200 rounded-xl text-gray-700 font-medium text-sm hover:bg-gray-50 transition-colors shadow-sm"
           aria-label="Go to dashboard"
@@ -63,7 +63,7 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
           transition={{ duration: 0.3, delay: 0.05 }}
           className="text-sm sm:text-base md:text-lg text-gray-600 max-w-md mb-4 sm:mb-6 text-center px-2"
         >
-          Let&apos;s capture this lead. Select your info below to get started.
+          Let&apos;s capture this lead. Choose the booth section to get started.
         </motion.p>
 
         {/* Selection Cards */}
@@ -73,30 +73,12 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
           transition={{ duration: 0.3, delay: 0.1 }}
           className="w-full max-w-lg space-y-3 sm:space-y-4 mb-4 sm:mb-6 px-2"
         >
-          {/* Salesperson Selection */}
-          <div>
-            <label 
-              htmlFor="salesperson-select" 
-              className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2"
-            >
-              <User className="w-4 h-4 text-indigo-500" aria-hidden="true" />
-              Salesperson
-            </label>
-            <select
-              id="salesperson-select"
-              value={selectedPerson}
-              onChange={(e) => setSelectedPerson(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 bg-white border-2 border-gray-200 rounded-xl text-gray-800 font-medium focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all appearance-none cursor-pointer"
-              aria-required="true"
-            >
-              <option value="">Select salesperson...</option>
-              {SALESPEOPLE.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          {currentUser && (
+            <div className="rounded-2xl border border-indigo-100 bg-white/85 px-4 py-3 text-left shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Logged in salesperson</p>
+              <p className="mt-1 text-sm font-medium text-gray-800">{currentUser.displayName}</p>
+            </div>
+          )}
 
           {/* Booth Section Selection */}
           <div>
@@ -130,6 +112,7 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
           transition={{ duration: 0.3, delay: 0.15 }}
           whileHover={canStart ? { scale: 1.01 } : {}}
           whileTap={canStart ? { scale: 0.99 } : {}}
+          type="button"
           onClick={handleStart}
           disabled={!canStart}
           className={`flex items-center gap-2 px-5 py-2.5 sm:px-8 sm:py-4 text-white text-base sm:text-lg font-semibold rounded-2xl shadow-xl transition-all ${
@@ -148,9 +131,9 @@ export default function WelcomeSlide({ onStart, onViewDashboard }: WelcomeSlideP
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="text-sm text-gray-500 mt-3"
-            role="alert"
+            aria-live="polite"
           >
-            Please select salesperson and booth section
+            Please select a booth section
           </motion.p>
         )}
       </div>

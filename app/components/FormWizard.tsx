@@ -43,9 +43,10 @@ export default function FormWizard({ onViewDashboard }: FormWizardProps) {
     setSubmitting(true);
 
     const dwellTime = getSessionDuration();
+    const submissionId = `lead-${crypto.randomUUID()}`;
     const submissionData = {
       ...formData,
-      id: `lead-${Date.now()}`,
+      id: submissionId,
       timestamp: new Date().toISOString(),
       dwellTime: dwellTime > 0 ? dwellTime : undefined,
     };
@@ -57,17 +58,18 @@ export default function FormWizard({ onViewDashboard }: FormWizardProps) {
     
     // Generate AI insights
     setAiLoading(true);
+    let aiInsights = 'Unable to generate insights at this time.';
     try {
-      const insights = await generateAIInsights(submissionData);
-      updateFormData({ aiInsights: insights });
+      aiInsights = await generateAIInsights(submissionData);
+      updateFormData({ aiInsights });
     } catch (error) {
       console.error('Failed to generate AI insights:', error);
-      updateFormData({ aiInsights: 'Unable to generate insights at this time.' });
+      updateFormData({ aiInsights });
     }
     setAiLoading(false);
 
     // Save the submission
-    addSubmission({ ...submissionData, aiInsights: formData.aiInsights });
+    await addSubmission({ ...submissionData, aiInsights });
     setSubmitting(false);
   };
 

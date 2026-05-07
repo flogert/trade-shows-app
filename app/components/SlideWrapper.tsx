@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 
 interface SlideWrapperProps {
   children: React.ReactNode;
@@ -23,6 +23,8 @@ const variants = {
 };
 
 export default function SlideWrapper({ children, direction = 1 }: SlideWrapperProps) {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <motion.div
       custom={direction}
@@ -31,8 +33,8 @@ export default function SlideWrapper({ children, direction = 1 }: SlideWrapperPr
       animate="center"
       exit="exit"
       transition={{
-        x: { type: 'tween', duration: 0.25, ease: 'easeOut' },
-        opacity: { duration: 0.2 },
+        x: prefersReducedMotion ? { duration: 0 } : { type: 'tween', duration: 0.25, ease: 'easeOut' },
+        opacity: { duration: prefersReducedMotion ? 0.01 : 0.2 },
       }}
       className="w-full"
     >

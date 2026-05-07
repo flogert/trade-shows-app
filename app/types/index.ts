@@ -5,6 +5,7 @@ export interface CustomerData {
   // Booth & Staff Info
   boothSection: string;
   salesperson: string;
+  salespersonName?: string;
   
   // Contact Information
   firstName: string;
@@ -152,19 +153,25 @@ export const BOOTH_SECTIONS = [
   { id: 'sea-display', name: 'SEA Display' },
 ] as const;
 
-export const SALESPEOPLE = [
-  { id: 'amanda', name: 'Amanda' },
-  { id: 'bella', name: 'Bella' },
-  { id: 'brandon', name: 'Brandon' },
-  { id: 'dani', name: 'Dani' },
-  { id: 'james', name: 'James' },
-  { id: 'tisha', name: 'Tisha' },
+export const TEAM_MEMBERS = [
+  { id: 'amanda-s', name: 'Amanda S.', email: 'amanda.s@safagoods.com', role: 'salesperson' },
+  { id: 'j-miner', name: 'J. Miner', email: 'j.miner@safagoods.com', role: 'salesperson' },
+  { id: 'jordan-t', name: 'Jordan T.', email: 'jordan.t@safagoods.com', role: 'salesperson' },
+  { id: 'b-burke', name: 'B. Burke', email: 'b.burke@safagoods.com', role: 'salesperson' },
+  { id: 'matt-leafdistro', name: 'Matt', email: 'matt@leafdistro.com', role: 'manager' },
+  { id: 'tisha-s', name: 'Tisha S.', email: 'tisha.s@safagoods.com', role: 'manager' },
+  { id: 'danielle-h', name: 'Danielle H.', email: 'danielle.h@safagoods.com', role: 'salesperson' },
+  { id: 'flogert', name: 'Flogert B.', email: 'flogert@rocketmail.com', role: 'admin' },
 ] as const;
+
+export const SALESPEOPLE = TEAM_MEMBERS
+  .filter((member) => member.role !== 'admin')
+  .map((member) => ({ id: member.id, name: member.name }));
 
 export const US_STATES = [
   'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
   'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
-  'Kansas', 'Kentucky', 'Louisiana', 'Colorado', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+  'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
   'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
   'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio',
   'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota',
@@ -195,4 +202,16 @@ export interface FootTrafficMetrics {
   averagePerHour: number;
   conversionRate: number; // leads / foot traffic
   hourlyData: FootTrafficHourlyData[];
+}
+
+export type UserRole = 'salesperson' | 'manager' | 'admin';
+
+export interface UserProfile {
+  id: string;
+  authUserId: string | null;
+  email: string;
+  displayName: string;
+  salespersonId: string;
+  role: UserRole;
+  active: boolean;
 }
