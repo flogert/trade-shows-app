@@ -205,14 +205,15 @@ function TopNav({
     >
       <div className="mx-auto max-w-7xl px-2.5 sm:px-4">
         <div className="flex min-h-14 items-center gap-2 py-2 sm:min-h-16 sm:gap-3">
-          <div className="min-w-0 flex-1 sm:flex-none sm:items-center">
+          <div className="w-0 flex-none overflow-hidden sm:w-0" aria-hidden="true">
             <button
               type="button"
               onClick={() => onViewChange('dashboard')}
               className="flex items-center gap-2 rounded-lg px-2 py-1 text-left transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-indigo-500"
               aria-label="Go to dashboard home"
+              tabIndex={-1}
             >
-              <span className="truncate font-bold text-gray-800 text-sm md:text-base">Trade Shows Hub</span>
+              <span className="sr-only">Dashboard home</span>
             </button>
           </div>
 
